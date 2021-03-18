@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Tic-Tac-Toe (JavaScript)</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Poor+Story');
+
+    body {
+      font-family: "Poor Story", cursive;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      font-weight: 400 !important;
+      font-size: 3rem;
+      margin: 0;
+    }
+
+    .square {
+      width: 100px;
+      height: 100px;
+      text-align: center;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.1s ease-in-out;
+    }
+
+    .square:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .v {
+      border-left: 1px solid #000;
+      border-right: 1px solid #000;
+    }
+
+    .h {
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+    }
+
+    #board {
+      transition: all 0.1s ease-in-out;
+    }
+
+    .won {
+      background: rgba(102, 187, 106, 0.8);
+    }
+
+    .lost {
+      background: rgb(239, 83, 80, 0.8);
+    }
+
+    .tie {
+      background: rgb(120, 144, 156, 0.8);
+    }
+
+    #score {
+      width: 300px;
+      margin: 0 0 10px 0;
+    }
+
+    #score td {
+      width: 75px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    #score thead td {
+      font-size: 1.2rem;
+    }
+
+    footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-around;
+      width: 300px;
+    }
+
+    #winner {
+      font-size: 1.75rem;
+      margin: 0 0 0 0;
+    }
+
+    #newGame {
+      display: none;
+      font-family: "Poor Story", cursive;
+      border-radius: 255px 25px 225px 25px/25px 225px 25px 255px;
+      color: #333;
+      background-color: transparent;
+      background-image: none;
+      border-color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      user-select: none;
+      padding: 0.25rem 1rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.1s ease-in-out;
+    }
+
+    #newGame:hover {
+      background-color: #666;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Tic-Tac-Toe</h1>
+
+  <table id="score">
+    <thead>
+      <tr>
+        <td></td>
+        <td>You</td>
+        <td>'Puter</td>
+        <td></td>
+      <tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td id="player_score">0</td>
+        <td id="AI_score">0</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table id="board">
+    <tr>
+      <td id="0" class="square" onclick="handlePlayerMove(0)"></td>
+      <td id="1" class="square v" onclick="handlePlayerMove(1)"></td>
+      <td id="2" class="square" onclick="handlePlayerMove(2)"></td>
+    </tr>
+    <tr>
+      <td id="3" class="square h" onclick="handlePlayerMove(3)"></td>
+      <td id="4" class="square v h" onclick="handlePlayerMove(4)"></td>
+      <td id="5" class="square h" onclick="handlePlayerMove(5)"></td>
+    </tr>
+    <tr>
+      <td id="6" class="square" onclick="handlePlayerMove(6)"></td>
+      <td id="7" class="square v" onclick="handlePlayerMove(7)"></td>
+      <td id="8" class="square" onclick="handlePlayerMove(8)"></td>
+    </tr>
+  </table>
+
+  <footer>
+    <p id="winner"></p>
+    <button onclick="newGame()" id="newGame">New Game</button>
+  </footer>
+
+  <script>
+    var board = [
+      "", "", "",
+      "", "", "",
+      "", "", ""
+    ];
+    var player = "X";
+    var AI = "O";
+    var player_score = 0;
+    var AI_score = 0;
+    var inProgress = true;
+
+    drawBoard(board);
+
+    function winning(array, player) {
+      if (
+        (array[0] == player && array[1] == player && array[2] == player) ||
+        (array[3] == player && array[4] == player && array[5] == player) ||
+        (array[6] == player && array[7] == player && array[8] == player) ||
+        (array[0] == player && array[3] == player && array[6] == player) ||
+        (array[1] == player && array[4] == player && array[7] == player) ||
+        (array[2] == player && array[5] == player && array[8] == player) ||
+        (array[0] == player && array[4] == player && array[8] == player) ||
+        (array[2] == player && array[4] == player && array[6] == player)
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function winner(winner) {
+      inProgress = false;
+      if (winner == "X") {
+        document.getElementById("winner").innerHTML = "You WIN!";
+        document.getElementById("newGame").style.display = "block";
+        document.getElementById("board").classList.add("won");
+        player_score++;
+      } else if (winner == "O") {
+        document.getElementById("winner").innerHTML = "You LOSE!";
+        document.getElementById("newGame").style.display = "block";
+        document.getElementById("board").classList.add("lost");
+        AI_score++;
+      } else {
+        document.getElementById("winner").innerHTML = "It's a TIE!";
+        document.getElementById("newGame").style.display = "block";
+        document.getElementById("board").classList.add("tie");
+      }
+      updateScores();
+      console.log(inProgress);
+    }
+
+    function updateScores() {
+      document.getElementById("player_score").innerHTML = player_score;
+      document.getElementById("AI_score").innerHTML = AI_score;
+    }
+
+    function handlePlayerMove(spot, array) {
+      if (board[spot] == "" && inProgress) {
+        board[spot] = player;
+        drawBoard(board);
+        if (!winning(board, player)) {
+          AImove(board);
+          if (winning(board, AI)) {
+            winner(AI);
+          }
+        } else {
+          winner(player);
+        }
+      }
+    }
+
+    function AImove(array) {
+      var empties = [];
+
+      for (var i = 0; i < array.length; i++) {
+        if (array[i] == "") {
+          empties.push(i);
+        }
+      }
+
+      console.log(empties);
+
+      if (empties.length > 0) {
+        var randomSpot = empties[randomIntFromInterval(0, (empties.length - 1))];
+        console.log(randomSpot);
+        array[randomSpot] = AI;
+        drawBoard(array);
+      } else {
+        winner("tie");
+      }
+    }
+
+    function randomIntFromInterval(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function newGame() {
+      board = [
+        "", "", "",
+        "", "", "",
+        "", "", ""
+      ];
+      inProgress = true;
+      document.getElementById("board").classList = "";
+      drawBoard(board);
+      document.getElementById("winner").innerHTML = "";
+      document.getElementById("newGame").style.display = "none";
+    }
+
+    function drawBoard(array) {
+      for (var i = 0; i < array.length; i++) {
+        document.getElementById(i).innerHTML = array[i];
+      }
+    }
+  </script>
+</body>
+
+</html>
